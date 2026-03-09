@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main", "dev", "features" ]
+  pull_request:
+    branches: [ "main", "dev", "features" ]
+
+jobs:
+
+  # ── 1. LINT ──────────────────────────────────────
+  lint:
+    name: CI / lint
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install flake8
+        run: pip install flake8
+
+      - name: Run lint
+        run: flake8 . --max-line-length=120 --exclude=.git,__pycache__,.venv,venv
+
+  # ── 2. BUILD DOCKER IMAGE ────────────────────────
+  docker-build:
+    name: CI / Build Backend Docker Image
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build -t flighttracerAI-backend:${{ github.sha }} .
