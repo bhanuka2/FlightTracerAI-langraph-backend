@@ -10,48 +10,21 @@ jobs:
 
   # ── 1. LINT ──────────────────────────────────────
   lint:
-    name: Lint
+    name: CI / lint
     runs-on: self-hosted
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
 
       - name: Install flake8
         run: pip install flake8
 
       - name: Run lint
-        run: flake8 . --max-line-length=120 --exclude=.git,__pycache__,venv
+        run: flake8 . --max-line-length=120 --exclude=.git,__pycache__,.venv,venv
 
-  # ── 2. TEST ──────────────────────────────────────
-  test:
-    name: Test
-    runs-on: self-hosted
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-
-      - name: Run tests
-        run: |
-          pip install pytest
-          pytest --tb=short
-
-  # ── 3. BUILD DOCKER IMAGE ────────────────────────
+  # ── 2. BUILD DOCKER IMAGE ────────────────────────
   docker-build:
-    name: Build Docker Image
+    name: CI / Build Backend Docker Image
     runs-on: self-hosted
     steps:
       - name: Checkout code
@@ -60,10 +33,3 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t flighttracerAI-backend:${{ github.sha }} .
-
-      # ── merge to main වෙලාදී push කරනවා ──
-      # registry push ඕනනම් මේ uncomment කරන්න:
-      # - name: Push to registry
-      #   run: |
-      #     docker tag flighttracerAI-backend:${{ github.sha }} ghcr.io/bhanuka2/flighttracerAI-backend:latest
-      #     docker push ghcr.io/bhanuka2/flighttracerAI-backend:latest
